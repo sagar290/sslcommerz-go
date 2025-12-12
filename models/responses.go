@@ -1,4 +1,4 @@
-package structs
+package models
 
 type PaymentResponse struct {
 	Status       string `json:"status"`

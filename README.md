@@ -1,76 +1,97 @@
 # ssl-wireless-pgw-golang-sdk (Beta)
 > SSLCOMMERZ is the first payment gateway in Bangladesh opening doors for merchants to receive payments on the internet via their online stores. Their customers will be able to buy products online using their credit cards as well as bank accounts.
 
-## Initialize payment
+## Installation
 
-``` go
+```bash
+go get github.com/sagar290/ssl_wireless_pgw_golang_sdk
+```
 
+## Usage
+
+### Initialize Client
+
+Use `New` to initialize the client. By default, it uses the Live environment.
+
+```go
 import (
-    "github.com/sagar290/ssl_wireless_pgw_golang_sdk
+    "github.com/sagar290/ssl_wireless_pgw_golang_sdk"
+    "github.com/sagar290/ssl_wireless_pgw_golang_sdk/models"
 )
+
+// Live Mode
+ssl := ssl_wireless_pgw_golang_sdk.New("store_id", "store_password")
+
+// Sandbox Mode
+ssl := ssl_wireless_pgw_golang_sdk.New("store_id", "store_password", ssl_wireless_pgw_golang_sdk.WithSandbox())
+```
+
+### Make Payment
+
+Construct the `PaymentRequest` using nested structs for a clean and readable initialization.
+
+```go
 func main() {
-    isLive := false
-	ssl := ssl_wireless_pgw_golang_sdk.Init("store_id", "store_password", isLive)
+    // ... initialize ssl client ...
 
-	body := ssl_wireless_pgw_golang_sdk.structs.PaymentBody{
-		TranId:          "123fgh",
-		ShippingMethod:  "online",
-		ProductName:     "Test",
-		ProductCategory: "Demo",
-		ProductProfile:  "non-physical-goods",
-		TotalAmount:     250,
-		Currency:        "BDT",
-	}
+    // Create request
+    req := models.PaymentRequest{
+        TranId:          "123fgh",
+        TotalAmount:     250,
+        Currency:        "BDT",
+        ProductCategory: "Electronics",
+        SuccessUrl:      "https://example.com/success",
+        FailUrl:         "https://example.com/fail",
+        CancelUrl:       "https://example.com/cancel",
+        IpnUrl:          "https://example.com/ipn",
+        
+        Customer: models.Customer{
+            Name:     "John Doe",
+            Email:    "john@example.com",
+            Phone:    "01700000000",
+            Add1:     "Dhaka",
+            City:     "Dhaka",
+            Postcode: "1000",
+            Country:  "Bangladesh",
+        },
+        
+        Shipping: models.Shipping{
+            Method:   "Courier",
+            NumItems: 1,
+            Name:     "John Doe",
+            Add1:     "Dhaka",
+            City:     "Dhaka",
+            Postcode: "1000",
+            Country:  "Bangladesh",
+        },
+        
+        Product: models.Product{
+            Name:    "Computer",
+            Profile: "general",
+        },
+    }
 
-	body.SetCustomerDetails(structs.CustomerDetails{
-		Name:  "Sagar290",
-		Phone: "01612345678",
-		Email: "tes@domin.com",
-		Add1:  "-",
-	})
+    // Initiate Payment
+    response, err := ssl.MakePayment(req)
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	body.SetShippingDetails(structs.ShippingDetails{
-		ShippingMethod: "NO",
-		NumOfItem:      1,
-	})
-
-	body.SetSuccessUrl("https://google.com")
-	body.SetCancelUrl("https://sagardash.com")
-	body.SetFailUrl("https://bornonit.com")
-	body.SetIpnUrl("https://10minuteschool.com")
-
-	var response ssl.structs.PaymentResponse
-    
-        // initialize the payment
-	response, _ = ssl.MakePayment(body)
-
-	fmt.Println(response.GatewayPageURL)
+    fmt.Printf("Gateway Page URL: %s\n", response.GatewayPageURL)
 }
 ```
 
-### Structs
-- Body
-  - PaymentBody
-  - OrderValidateBody
-  - TransactionQueryBySessionKeyBody
-  - TransactionQueryByTransactionId
-- Response
-  - IpnResponse
-  - OrderValidateResponse
-  - TransactionQueryBySessionKeyResponse
-  - TransactionQueryByTransactionIdResponse
-  - InitiateRefundResponse
-  - RefundQueryURLResponse
+### Other Methods
 
-### Methods
-- MakePayment
-- ValidatePayment **(for ipn)**
-- InitiateRefund
-- RefundQuery
-- TransactionQueryBySessionId
-- TransactionQueryByTransactionId
+The SDK supports other operations like validation, refund, and transaction queries.
 
-# Contribution guideline
+- `ValidatePayment(req models.OrderValidateRequest)`
+- `InitiateRefund(req models.InitiateRefundRequest)`
+- `RefundQuery(req models.RefundQueryURLRequest)`
+- `TransactionQueryBySessionId(req models.TransactionQueryBySessionKeyRequest)`
+- `TransactionQueryByTransactionId(req models.TransactionQueryByTransactionIdRequest)`
+
+## Contribution guideline
 Make these things more useful by contributing our brain and efforts. History will remember our contribution as far as lazy peoples like me are alive ;)
 
 - Clone the repository

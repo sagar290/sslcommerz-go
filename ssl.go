@@ -2,11 +2,17 @@ package ssl_wireless_pgw_golang_sdk
 
 import (
 	"encoding/json"
-	"github.com/google/go-querystring/query"
-	"github.com/sagar290/ssl_wireless_pgw_golang_sdk/helpers"
-	"github.com/sagar290/ssl_wireless_pgw_golang_sdk/structs"
 	"log"
 	"net/http"
+
+	"github.com/google/go-querystring/query"
+	"github.com/sagar290/ssl_wireless_pgw_golang_sdk/helpers"
+	"github.com/sagar290/ssl_wireless_pgw_golang_sdk/models"
+)
+
+const (
+	SandboxURL = "https://sandbox.sslcommerz.com"
+	LiveURL    = "https://securepay.sslcommerz.com"
 )
 
 type Ssl struct {
@@ -21,149 +27,177 @@ type Ssl struct {
 	TransactionQueryByTransactionIdURL string
 }
 
-func Init(storeId string, storePassword string, isLive bool) *Ssl {
+type Option func(*Ssl)
 
-	var url string
-
-	if isLive {
-		url = "https://securepay.sslcommerz.com"
-	} else {
-		url = "https://sandbox.sslcommerz.com"
-	}
-
-	return &Ssl{
-		StoreID:                            storeId,
-		StorePassword:                      storePassword,
-		BaseUrl:                            url,
-		InitURL:                            url + "/gwprocess/v4/api.php?",
-		ValidationURL:                      url + "/validator/api/validationserverAPI.php?",
-		RefundURL:                          url + "/validator/api/merchantTransIDvalidationAPI.php?",
-		RefundQueryURL:                     url + "/validator/api/merchantTransIDvalidationAPI.php?",
-		TransactionQueryBySessionIdURL:     url + "/validator/api/merchantTransIDvalidationAPI.php?",
-		TransactionQueryByTransactionIdURL: url + "/validator/api/merchantTransIDvalidationAPI.php?",
+// WithSandbox enables sandbox mode
+func WithSandbox() Option {
+	return func(s *Ssl) {
+		s.BaseUrl = SandboxURL
+		s.updateURLs()
 	}
 }
 
-func (ssl *Ssl) MakePayment(postBody structs.PaymentBody) (structs.PaymentResponse, error) {
+// WithBaseURL allows setting a custom base URL
+func WithBaseURL(url string) Option {
+	return func(s *Ssl) {
+		s.BaseUrl = url
+		s.updateURLs()
+	}
+}
 
-	var res structs.PaymentResponse
+func New(storeId string, storePassword string, opts ...Option) *Ssl {
+	ssl := &Ssl{
+		StoreID:       storeId,
+		StorePassword: storePassword,
+		BaseUrl:       LiveURL, // Default to Live
+	}
+
+	ssl.updateURLs()
+
+	for _, opt := range opts {
+		opt(ssl)
+	}
+
+	return ssl
+}
+
+func (s *Ssl) updateURLs() {
+	s.InitURL = s.BaseUrl + "/gwprocess/v4/api.php?"
+	s.ValidationURL = s.BaseUrl + "/validator/api/validationserverAPI.php?"
+	s.RefundURL = s.BaseUrl + "/validator/api/merchantTransIDvalidationAPI.php?"
+	s.RefundQueryURL = s.BaseUrl + "/validator/api/merchantTransIDvalidationAPI.php?"
+	s.TransactionQueryBySessionIdURL = s.BaseUrl + "/validator/api/merchantTransIDvalidationAPI.php?"
+	s.TransactionQueryByTransactionIdURL = s.BaseUrl + "/validator/api/merchantTransIDvalidationAPI.php?"
+}
+
+func (ssl *Ssl) MakePayment(req models.PaymentRequest) (models.PaymentResponse, error) {
+	var res models.PaymentResponse
 
 	// set store id and password
-	postBody.StoreId = ssl.StoreID
-	postBody.StorePasswd = ssl.StorePassword
+	req.StoreId = ssl.StoreID
+	req.StorePasswd = ssl.StorePassword
 
-	values := helpers.StructToMap(&postBody)
+	// Use go-querystring to encode the struct to url.Values
+	values, err := query.Values(req)
+	if err != nil {
+		return models.PaymentResponse{}, err
+	}
 
 	response, err := http.PostForm(ssl.InitURL, values)
-
 	if err != nil {
 		log.Fatal(err)
-		return structs.PaymentResponse{}, err
+		return models.PaymentResponse{}, err
+	}
+	defer response.Body.Close()
+
+	if err := json.NewDecoder(response.Body).Decode(&res); err != nil {
+		return models.PaymentResponse{}, err
 	}
 
-	json.NewDecoder(response.Body).Decode(&res)
-	// log.Printf("%v\n", res)
 	return res, nil
-
 }
 
-func (ssl *Ssl) ValidatePayment(data structs.OrderValidateBody) (structs.OrderValidateResponse, error) {
-	var res structs.OrderValidateResponse
+func (ssl *Ssl) ValidatePayment(req models.OrderValidateRequest) (models.OrderValidateResponse, error) {
+	var res models.OrderValidateResponse
 
-	// set store id and password
-	data.StoreId = ssl.StoreID
-	data.StorePasswd = ssl.StorePassword
+	req.StoreId = ssl.StoreID
+	req.StorePasswd = ssl.StorePassword
 
-	v, _ := query.Values(data)
+	v, _ := query.Values(req)
 
-	//resp, err := http.Get(ssl.ValidationURL + "val_id=" + data.ValId + "&store_id=" + data.StoreId + "&store_passwd=" + data.StorePasswd)
 	resp, err := http.Get(ssl.ValidationURL + helpers.Encode(v))
-
 	if err != nil {
 		log.Fatal(err)
-		return structs.OrderValidateResponse{}, err
+		return models.OrderValidateResponse{}, err
 	}
+	defer resp.Body.Close()
 
-	json.NewDecoder(resp.Body).Decode(&res)
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return models.OrderValidateResponse{}, err
+	}
 	return res, nil
 }
 
-func (ssl *Ssl) InitiateRefund(data structs.InitiateRefundBody) (structs.InitiateRefundResponse, error) {
-	var res structs.InitiateRefundResponse
+func (ssl *Ssl) InitiateRefund(req models.InitiateRefundRequest) (models.InitiateRefundResponse, error) {
+	var res models.InitiateRefundResponse
 
-	// set store id and password
-	data.StoreId = ssl.StoreID
-	data.StorePasswd = ssl.StorePassword
+	req.StoreId = ssl.StoreID
+	req.StorePasswd = ssl.StorePassword
 
-	v, _ := query.Values(data)
+	v, _ := query.Values(req)
 
 	resp, err := http.Get(ssl.RefundURL + helpers.Encode(v))
-
 	if err != nil {
 		log.Fatal(err)
-		return structs.InitiateRefundResponse{}, err
+		return models.InitiateRefundResponse{}, err
 	}
+	defer resp.Body.Close()
 
-	json.NewDecoder(resp.Body).Decode(&res)
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return models.InitiateRefundResponse{}, err
+	}
 	return res, nil
 }
 
-func (ssl *Ssl) RefundQuery(data structs.RefundQueryURLBody) (structs.RefundQueryURLResponse, error) {
-	var res structs.RefundQueryURLResponse
+func (ssl *Ssl) RefundQuery(req models.RefundQueryURLRequest) (models.RefundQueryURLResponse, error) {
+	var res models.RefundQueryURLResponse
 
-	// set store id and password
-	data.StoreId = ssl.StoreID
-	data.StorePasswd = ssl.StorePassword
+	req.StoreId = ssl.StoreID
+	req.StorePasswd = ssl.StorePassword
 
-	v, _ := query.Values(data)
+	v, _ := query.Values(req)
 
 	resp, err := http.Get(ssl.RefundQueryURL + helpers.Encode(v))
-
 	if err != nil {
 		log.Fatal(err)
-		return structs.RefundQueryURLResponse{}, err
+		return models.RefundQueryURLResponse{}, err
 	}
+	defer resp.Body.Close()
 
-	json.NewDecoder(resp.Body).Decode(&res)
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return models.RefundQueryURLResponse{}, err
+	}
 	return res, nil
 }
 
-func (ssl *Ssl) TransactionQueryBySessionId(data structs.TransactionQueryBySessionKeyBody) (structs.TransactionQueryBySessionKeyResponse, error) {
-	var res structs.TransactionQueryBySessionKeyResponse
+func (ssl *Ssl) TransactionQueryBySessionId(req models.TransactionQueryBySessionKeyRequest) (models.TransactionQueryBySessionKeyResponse, error) {
+	var res models.TransactionQueryBySessionKeyResponse
 
-	// set store id and password
-	data.StoreId = ssl.StoreID
-	data.StorePasswd = ssl.StorePassword
+	req.StoreId = ssl.StoreID
+	req.StorePasswd = ssl.StorePassword
 
-	v, _ := query.Values(data)
+	v, _ := query.Values(req)
 
 	resp, err := http.Get(ssl.TransactionQueryBySessionIdURL + helpers.Encode(v))
-
 	if err != nil {
 		log.Fatal(err)
-		return structs.TransactionQueryBySessionKeyResponse{}, err
+		return models.TransactionQueryBySessionKeyResponse{}, err
 	}
+	defer resp.Body.Close()
 
-	json.NewDecoder(resp.Body).Decode(&res)
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return models.TransactionQueryBySessionKeyResponse{}, err
+	}
 	return res, nil
 }
 
-func (ssl *Ssl) TransactionQueryByTransactionId(data structs.TransactionQueryByTransactionIdBody) (structs.TransactionQueryByTransactionIdResponse, error) {
-	var res structs.TransactionQueryByTransactionIdResponse
+func (ssl *Ssl) TransactionQueryByTransactionId(req models.TransactionQueryByTransactionIdRequest) (models.TransactionQueryByTransactionIdResponse, error) {
+	var res models.TransactionQueryByTransactionIdResponse
 
-	// set store id and password
-	data.StoreId = ssl.StoreID
-	data.StorePasswd = ssl.StorePassword
+	req.StoreId = ssl.StoreID
+	req.StorePasswd = ssl.StorePassword
 
-	v, _ := query.Values(data)
+	v, _ := query.Values(req)
 
 	resp, err := http.Get(ssl.TransactionQueryBySessionIdURL + helpers.Encode(v))
-
 	if err != nil {
 		log.Fatal(err)
-		return structs.TransactionQueryByTransactionIdResponse{}, err
+		return models.TransactionQueryByTransactionIdResponse{}, err
 	}
+	defer resp.Body.Close()
 
-	json.NewDecoder(resp.Body).Decode(&res)
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return models.TransactionQueryByTransactionIdResponse{}, err
+	}
 	return res, nil
 }

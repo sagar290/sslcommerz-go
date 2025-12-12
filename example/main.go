@@ -15,7 +15,8 @@ func main() {
 
 	// Create request using nested structs
 	req := models.PaymentRequest{
-		TranId: "123fgh",
+		TranId:   "123fgh",
+		Currency: models.CurrencyBDT,
 		Shipping: models.Shipping{
 			Method:   models.ShippingMethodOnline,
 			Name:     "John Doe",

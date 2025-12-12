@@ -102,4 +102,17 @@ const (
 	ProductProfileAirlineTickets   = "airline-tickets"
 	ProductProfileTravelVertical   = "travel-vertical"
 	ProductProfileTelecomVertical  = "telecom-vertical"
+
+	// Payment Status
+	PaymentStatusValid       = "VALID"
+	PaymentStatusFailed      = "FAILED"
+	PaymentStatusCancelled   = "CANCELLED"
+	PaymentStatusUnattempted = "UNATTEMPTED"
+	PaymentStatusExpired     = "EXPIRED"
+
+	// Currencies
+	CurrencyBDT = "BDT"
+	CurrencyUSD = "USD"
+	CurrencyEUR = "EUR"
+	CurrencyGBP = "GBP"
 )

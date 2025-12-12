@@ -35,11 +35,10 @@ func main() {
     // ... initialize ssl client ...
 
     // Create request
-    // Create request
     req := models.PaymentRequest{
         TranId:          "123fgh",
         TotalAmount:     250,
-        Currency:        "BDT",
+        Currency:        models.CurrencyBDT,
         ProductCategory: models.ProductCategoryElectronics,
         SuccessUrl:      "https://example.com/success",
         FailUrl:         "https://example.com/fail",
@@ -105,7 +104,7 @@ func IpnHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // Validate IPN (e.g., check status, amount, transaction ID)
-    if ipn.Status == "VALID" {
+    if ipn.Status == models.PaymentStatusValid {
         fmt.Printf("Payment Validated: %s\n", ipn.TranId)
     }
 }

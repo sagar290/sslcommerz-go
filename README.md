@@ -110,6 +110,35 @@ func IpnHandler(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
+### Gin Framework Support
+
+The SDK provides a helper for the Gin framework to handle IPN requests easily.
+
+```go
+import (
+    "github.com/gin-gonic/gin"
+    "github.com/sagar290/sslcommerz-go/wrapper"
+)
+
+func main() {
+    r := gin.Default()
+
+    // IPN Handler Route
+    r.POST("/ipn", wrapper.IPNHandler(func(ipn *models.IpnResponse, err error) {
+        if err != nil {
+            // Handle error
+            return
+        }
+        // Validate and process IPN
+        if ipn.Status == models.PaymentStatusValid {
+            fmt.Printf("Payment Validated: %s\n", ipn.TranId)
+        }
+    }))
+
+    r.Run(":8080")
+}
+```
+
 ### Other Methods
 
 The SDK supports other operations like validation, refund, and transaction queries.

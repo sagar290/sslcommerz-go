@@ -1,4 +1,4 @@
-module github.com/sagar290/ssl_wireless_pgw_golang_sdk
+module github.com/sagar290/sslcommerz-go
 
 go 1.17
 

@@ -1,4 +1,4 @@
-package ssl_wireless_pgw_golang_sdk
+package ssl
 
 import (
 	"encoding/json"
@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/google/go-querystring/query"
-	"github.com/sagar290/ssl_wireless_pgw_golang_sdk/helpers"
-	"github.com/sagar290/ssl_wireless_pgw_golang_sdk/models"
+	"github.com/sagar290/sslcommerz-go/helpers"
+	"github.com/sagar290/sslcommerz-go/models"
 )
 
 const (

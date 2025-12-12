@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/sagar290/ssl_wireless_pgw_golang_sdk"
-	"github.com/sagar290/ssl_wireless_pgw_golang_sdk/models"
+	ssl "github.com/sagar290/sslcommerz-go"
+	"github.com/sagar290/sslcommerz-go/models"
 )
 
 func main() {
 	// Initialize client with functional options
 	// Default is Live, use WithSandbox() for sandbox mode
-	ssl := ssl_wireless_pgw_golang_sdk.New("store_id", "store_password", ssl_wireless_pgw_golang_sdk.WithSandbox())
+	client := ssl.New("store_id", "store_password", ssl.WithSandbox())
 
 	// Create request using nested structs
 	req := models.PaymentRequest{
@@ -46,7 +46,7 @@ func main() {
 	}
 
 	// Make payment
-	response, err := ssl.MakePayment(req)
+	response, err := client.MakePayment(req)
 	if err != nil {
 		log.Fatal(err)
 	}

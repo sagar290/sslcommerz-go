@@ -1,10 +1,10 @@
-# ssl-wireless-pgw-golang-sdk (Beta)
+# sslcommerz-go
 > SSLCOMMERZ is the first payment gateway in Bangladesh opening doors for merchants to receive payments on the internet via their online stores. Their customers will be able to buy products online using their credit cards as well as bank accounts.
 
 ## Installation
 
 ```bash
-go get github.com/sagar290/ssl_wireless_pgw_golang_sdk
+go get github.com/sagar290/sslcommerz-go
 ```
 
 ## Usage
@@ -15,15 +15,15 @@ Use `New` to initialize the client. By default, it uses the Live environment.
 
 ```go
 import (
-    "github.com/sagar290/ssl_wireless_pgw_golang_sdk"
-    "github.com/sagar290/ssl_wireless_pgw_golang_sdk/models"
+    ssl "github.com/sagar290/sslcommerz-go"
+    "github.com/sagar290/sslcommerz-go/models"
 )
 
 // Live Mode
-ssl := ssl_wireless_pgw_golang_sdk.New("store_id", "store_password")
+client := ssl.New("store_id", "store_password")
 
 // Sandbox Mode
-ssl := ssl_wireless_pgw_golang_sdk.New("store_id", "store_password", ssl_wireless_pgw_golang_sdk.WithSandbox())
+client := ssl.New("store_id", "store_password", ssl.WithSandbox())
 ```
 
 ### Make Payment
@@ -72,7 +72,7 @@ func main() {
     }
 
     // Initiate Payment
-    response, err := ssl.MakePayment(req)
+    response, err := client.MakePayment(req)
     if err != nil {
         log.Fatal(err)
     }

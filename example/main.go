@@ -17,7 +17,7 @@ func main() {
 	req := models.PaymentRequest{
 		TranId: "123fgh",
 		Shipping: models.Shipping{
-			Method:   "online",
+			Method:   models.ShippingMethodOnline,
 			Name:     "John Doe",
 			Add1:     "Dhaka",
 			City:     "Dhaka",
@@ -35,10 +35,10 @@ func main() {
 			Country:  "Bangladesh",
 			Phone:    "01700000000",
 		},
-		ProductCategory: "Electronics",
+		ProductCategory: models.ProductCategoryElectronics,
 		Product: models.Product{
 			Name:    "Computer",
-			Profile: "general",
+			Profile: models.ProductProfileGeneral,
 		},
 		SuccessUrl: "https://google.com",
 		FailUrl:    "https://google.com",

@@ -82,3 +82,24 @@ type Extra struct {
 	ValueC string `json:"value_c" url:"value_c,omitempty"`
 	ValueD string `json:"value_d" url:"value_d,omitempty"`
 }
+
+// Constants for PaymentRequest
+const (
+	// Shipping Methods
+	ShippingMethodOnline  = "online"
+	ShippingMethodCourier = "courier"
+	ShippingMethodNo      = "no"
+
+	// Product Categories
+	ProductCategoryElectronics = "Electronics"
+	ProductCategoryClothing    = "Clothing"
+	ProductCategoryDigital     = "Digital"
+
+	// Product Profiles
+	ProductProfileGeneral          = "general"
+	ProductProfilePhysicalGoods    = "physical-goods"
+	ProductProfileNonPhysicalGoods = "non-physical-goods"
+	ProductProfileAirlineTickets   = "airline-tickets"
+	ProductProfileTravelVertical   = "travel-vertical"
+	ProductProfileTelecomVertical  = "telecom-vertical"
+)

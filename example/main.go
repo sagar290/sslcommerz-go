@@ -45,6 +45,15 @@ func main() {
 		CancelUrl:  "https://google.com",
 	}
 
+	// Add Cart items
+	err := req.SetCart([]models.CartProduct{
+		{Product: "DHK TO BRS AC A1", Amount: "200.00"},
+		{Product: "DHK TO BRS AC A2", Amount: "50.00"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Make payment
 	response, err := client.MakePayment(req)
 	if err != nil {

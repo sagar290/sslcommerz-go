@@ -201,3 +201,44 @@ func (ssl *Ssl) TransactionQueryByTransactionId(req models.TransactionQueryByTra
 	}
 	return res, nil
 }
+
+// ParseIPN parses the incoming IPN request and returns the IpnResponse struct
+func ParseIPN(r *http.Request) (*models.IpnResponse, error) {
+	if err := r.ParseForm(); err != nil {
+		return nil, err
+	}
+
+	var ipn models.IpnResponse
+	// Manually map form values to struct fields or use a decoder
+	// Since we don't have a form decoder library, we'll do it manually for key fields
+	// or use the same go-querystring library if it supports decoding (it usually doesn't).
+	// For simplicity and robustness, let's map the most important fields manually.
+	// Or better, use a loop with reflection if we want to be generic, but manual is safer for now.
+
+	ipn.Status = r.FormValue("status")
+	ipn.TranDate = r.FormValue("tran_date")
+	ipn.TranId = r.FormValue("tran_id")
+	ipn.ValId = r.FormValue("val_id")
+	ipn.Amount = r.FormValue("amount")
+	ipn.StoreAmount = r.FormValue("store_amount")
+	ipn.CardType = r.FormValue("card_type")
+	ipn.CardNo = r.FormValue("card_no")
+	ipn.Currency = r.FormValue("currency")
+	ipn.BankTranId = r.FormValue("bank_tran_id")
+	ipn.CardIssuer = r.FormValue("card_issuer")
+	ipn.CardBrand = r.FormValue("card_brand")
+	ipn.CardIssuerCountry = r.FormValue("card_issuer_country")
+	ipn.CardIssuerCountryCode = r.FormValue("card_issuer_country_code")
+	ipn.CurrencyType = r.FormValue("currency_type")
+	ipn.CurrencyAmount = r.FormValue("currency_amount")
+	ipn.ValueA = r.FormValue("value_a")
+	ipn.ValueB = r.FormValue("value_b")
+	ipn.ValueC = r.FormValue("value_c")
+	ipn.ValueD = r.FormValue("value_d")
+	ipn.VerifySign = r.FormValue("verify_sign")
+	ipn.VerifyKey = r.FormValue("verify_key")
+	ipn.RiskLevel = r.FormValue("risk_level")
+	ipn.RiskTitle = r.FormValue("risk_title")
+
+	return &ipn, nil
+}

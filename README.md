@@ -35,11 +35,12 @@ func main() {
     // ... initialize ssl client ...
 
     // Create request
+    // Create request
     req := models.PaymentRequest{
         TranId:          "123fgh",
         TotalAmount:     250,
         Currency:        "BDT",
-        ProductCategory: "Electronics",
+        ProductCategory: models.ProductCategoryElectronics,
         SuccessUrl:      "https://example.com/success",
         FailUrl:         "https://example.com/fail",
         CancelUrl:       "https://example.com/cancel",
@@ -56,7 +57,7 @@ func main() {
         },
         
         Shipping: models.Shipping{
-            Method:   "Courier",
+            Method:   models.ShippingMethodCourier,
             NumItems: 1,
             Name:     "John Doe",
             Add1:     "Dhaka",
@@ -67,8 +68,17 @@ func main() {
         
         Product: models.Product{
             Name:    "Computer",
-            Profile: "general",
+            Profile: models.ProductProfileGeneral,
         },
+    }
+
+    // Add Cart items (Optional)
+    err := req.SetCart([]models.CartProduct{
+        {Product: "DHK TO BRS AC A1", Amount: "200.00"},
+        {Product: "DHK TO BRS AC A2", Amount: "50.00"},
+    })
+    if err != nil {
+        log.Fatal(err)
     }
 
     // Initiate Payment
@@ -78,6 +88,26 @@ func main() {
     }
 
     fmt.Printf("Gateway Page URL: %s\n", response.GatewayPageURL)
+}
+```
+
+### IPN Validation
+
+You can parse the incoming IPN request using the `ParseIPN` helper.
+
+```go
+func IpnHandler(w http.ResponseWriter, r *http.Request) {
+    // Parse IPN request
+    ipn, err := ssl.ParseIPN(r)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    // Validate IPN (e.g., check status, amount, transaction ID)
+    if ipn.Status == "VALID" {
+        fmt.Printf("Payment Validated: %s\n", ipn.TranId)
+    }
 }
 ```
 

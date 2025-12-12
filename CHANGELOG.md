@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [v1.0.1]
 
 ### Added
 - **Functional Options Pattern**: `New` function now accepts functional options like `WithSandbox()` for flexible client initialization.

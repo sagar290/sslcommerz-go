@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.0.2]
+
+### Added
+- **Gin Wrapper**: Added `wrapper` package with `IPNHandler` middleware for easy integration with the Gin framework.
+
 ## [v1.0.1]
 
 ### Added

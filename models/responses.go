@@ -58,6 +58,11 @@ type IpnResponse struct {
 	RiskTitle             string `json:"risk_title"`
 }
 
+// IsValid checks if the transaction status is valid
+func (r *IpnResponse) IsValid() bool {
+	return r.Status == PaymentStatusValid || r.Status == PaymentStatusValidated
+}
+
 type OrderValidateResponse struct {
 	Status                string `json:"status"`
 	TranDate              string `json:"tran_date"`

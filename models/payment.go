@@ -104,7 +104,10 @@ const (
 	ProductProfileTelecomVertical  = "telecom-vertical"
 
 	// Payment Status
-	PaymentStatusValid       = "VALID"
+	PaymentStatusValid              = "VALID"
+	PaymentStatusValidated          = "VALIDATED"
+	PaymentStatusInvalidTransaction = "INVALID_TRANSACTION"
+
 	PaymentStatusFailed      = "FAILED"
 	PaymentStatusCancelled   = "CANCELLED"
 	PaymentStatusUnattempted = "UNATTEMPTED"

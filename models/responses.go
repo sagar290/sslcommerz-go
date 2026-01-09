@@ -91,6 +91,17 @@ type OrderValidateResponse struct {
 	APIConnect            string `json:"APIConnect"`
 	ValidatedOn           string `json:"validated_on"`
 	GwVersion             string `json:"gw_version"`
+	DiscountPercentage    string `json:"discount_percentage,omitempty"`
+	DiscountAmount        string `json:"discount_amount,omitempty"`
+	DiscountRemarks       string `json:"discount_remarks,omitempty"`
+	CartType              string `json:"cart_type,omitempty"`
+	CartQuantity          string `json:"cart_quantity,omitempty"`
+	AddressIsSame         string `json:"address_is_same,omitempty"`
+}
+
+// IsValid checks if the transaction status is valid
+func (r *OrderValidateResponse) IsValid() bool {
+	return r.Status == PaymentStatusValid || r.Status == PaymentStatusValidated
 }
 
 type TransactionQueryBySessionKeyResponse struct {

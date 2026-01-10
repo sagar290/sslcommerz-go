@@ -97,7 +97,7 @@ type OrderValidateResponse struct {
 	ValidatedOn           string `json:"validated_on"`
 	GwVersion             string `json:"gw_version"`
 	DiscountPercentage    string `json:"discount_percentage,omitempty"`
-	DiscountAmount        string `json:"discount_amount,omitempty"`
+	DiscountAmount        float64 `json:"discount_amount,omitempty"`
 	DiscountRemarks       string `json:"discount_remarks,omitempty"`
 	CartType              string `json:"cart_type,omitempty"`
 	CartQuantity          string `json:"cart_quantity,omitempty"`

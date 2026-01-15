@@ -1,5 +1,11 @@
 package models
 
+import (
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
+
 type PaymentResponse struct {
 	Status       string `json:"status"`
 	Failedreason string `json:"failedreason"`
@@ -29,6 +35,33 @@ type PaymentResponse struct {
 		RedirectGatewayURL string `json:"redirectGatewayURL,omitempty"`
 	} `json:"desc"`
 	IsDirectPayEnable string `json:"is_direct_pay_enable"`
+}
+
+// FlexFloat handles JSON fields that can be either a float or a string (e.g., "10.5" or 10.5)
+type FlexFloat float64
+
+func (f *FlexFloat) UnmarshalJSON(data []byte) error {
+	var v interface{}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch value := v.(type) {
+	case float64:
+		*f = FlexFloat(value)
+	case string:
+		if value == "" {
+			*f = 0
+			return nil
+		}
+		fl, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return err
+		}
+		*f = FlexFloat(fl)
+	default:
+		return fmt.Errorf("invalid type for FlexFloat: %T", value)
+	}
+	return nil
 }
 
 type IpnResponse struct {
@@ -64,44 +97,44 @@ func (r *IpnResponse) IsValid() bool {
 }
 
 type OrderValidateResponse struct {
-	Status                string `json:"status"`
-	TranDate              string `json:"tran_date"`
-	TranId                string `json:"tran_id"`
-	ValId                 string `json:"val_id"`
-	Amount                string `json:"amount"`
-	StoreAmount           string `json:"store_amount"`
-	Currency              string `json:"currency"`
-	BankTranId            string `json:"bank_tran_id"`
-	CardType              string `json:"card_type"`
-	CardNo                string `json:"card_no"`
-	CardIssuer            string `json:"card_issuer"`
-	CardBrand             string `json:"card_brand"`
-	CardIssuerCountry     string `json:"card_issuer_country"`
-	CardIssuerCountryCode string `json:"card_issuer_country_code"`
-	CurrencyType          string `json:"currency_type"`
-	CurrencyAmount        string `json:"currency_amount"`
-	CurrencyRate          string `json:"currency_rate"`
-	BaseFair              string `json:"base_fair"`
-	ValueA                string `json:"value_a"`
-	ValueB                string `json:"value_b"`
-	ValueC                string `json:"value_c"`
-	ValueD                string `json:"value_d"`
-	EmiInstalment         string `json:"emi_instalment"`
-	EmiAmount             string `json:"emi_amount"`
-	EmiDescription        string `json:"emi_description"`
-	EmiIssuer             string `json:"emi_issuer"`
-	AccountDetails        string `json:"account_details"`
-	RiskTitle             string `json:"risk_title"`
-	RiskLevel             string `json:"risk_level"`
-	APIConnect            string `json:"APIConnect"`
-	ValidatedOn           string `json:"validated_on"`
-	GwVersion             string `json:"gw_version"`
-	DiscountPercentage    string `json:"discount_percentage,omitempty"`
-	DiscountAmount        float64 `json:"discount_amount,omitempty"`
-	DiscountRemarks       string `json:"discount_remarks,omitempty"`
-	CartType              string `json:"cart_type,omitempty"`
-	CartQuantity          string `json:"cart_quantity,omitempty"`
-	AddressIsSame         string `json:"address_is_same,omitempty"`
+	Status                string    `json:"status"`
+	TranDate              string    `json:"tran_date"`
+	TranId                string    `json:"tran_id"`
+	ValId                 string    `json:"val_id"`
+	Amount                string    `json:"amount"`
+	StoreAmount           string    `json:"store_amount"`
+	Currency              string    `json:"currency"`
+	BankTranId            string    `json:"bank_tran_id"`
+	CardType              string    `json:"card_type"`
+	CardNo                string    `json:"card_no"`
+	CardIssuer            string    `json:"card_issuer"`
+	CardBrand             string    `json:"card_brand"`
+	CardIssuerCountry     string    `json:"card_issuer_country"`
+	CardIssuerCountryCode string    `json:"card_issuer_country_code"`
+	CurrencyType          string    `json:"currency_type"`
+	CurrencyAmount        string    `json:"currency_amount"`
+	CurrencyRate          string    `json:"currency_rate"`
+	BaseFair              string    `json:"base_fair"`
+	ValueA                string    `json:"value_a"`
+	ValueB                string    `json:"value_b"`
+	ValueC                string    `json:"value_c"`
+	ValueD                string    `json:"value_d"`
+	EmiInstalment         string    `json:"emi_instalment"`
+	EmiAmount             string    `json:"emi_amount"`
+	EmiDescription        string    `json:"emi_description"`
+	EmiIssuer             string    `json:"emi_issuer"`
+	AccountDetails        string    `json:"account_details"`
+	RiskTitle             string    `json:"risk_title"`
+	RiskLevel             string    `json:"risk_level"`
+	APIConnect            string    `json:"APIConnect"`
+	ValidatedOn           string    `json:"validated_on"`
+	GwVersion             string    `json:"gw_version"`
+	DiscountPercentage    string    `json:"discount_percentage,omitempty"`
+	DiscountAmount        FlexFloat `json:"discount_amount,omitempty"`
+	DiscountRemarks       string    `json:"discount_remarks,omitempty"`
+	CartType              string    `json:"cart_type,omitempty"`
+	CartQuantity          string    `json:"cart_quantity,omitempty"`
+	AddressIsSame         string    `json:"address_is_same,omitempty"`
 }
 
 // IsValid checks if the transaction status is valid
